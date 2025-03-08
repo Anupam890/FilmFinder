@@ -1,45 +1,70 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import React from "react";
+import { Tabs } from "expo-router";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+const TabLayout = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarActiveTintColor: "#2563eb", 
+        tabBarInactiveTintColor: "#6b7280", 
+        tabBarStyle: {
+          backgroundColor: "#ffffff",
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          right: 20,
+          height: 60,
+          borderRadius: 30,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
+          paddingBottom: 0,
+          borderTopWidth: 0,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 5,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom: 4,
+        },
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Home",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="home" color={color} size={size} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Search",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="search1" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="saved"
+        options={{
+          title: "Saved",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="hearto" color={color} size={size} />
+          ),
         }}
       />
     </Tabs>
   );
-}
+};
+
+export default TabLayout;
