@@ -2,7 +2,7 @@ import { View, Text,TextInput,TouchableOpacity } from 'react-native'
 import React from 'react'
 import AntDesign from "@expo/vector-icons/AntDesign";
 
-const SearchBar = ({onPress,placeholder}) => {
+const SearchBar = () => {
   return (
     <View className="flex-row items-center bg-gray-800 rounded-lg px-3 py-2">
     <AntDesign name="search1" size={20} color="#9CA3AF" />

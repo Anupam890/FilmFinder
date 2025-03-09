@@ -95,6 +95,28 @@ const TabLayout = () => {
           ),
         }}
       />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              <AntDesign name="user" color={color} size={size} />
+              {focused && (
+                <View
+                  style={{
+                    width: 6,
+                    height: 6,
+                    backgroundColor: "#FFD700",
+                    borderRadius: 3,
+                    marginTop: 4,
+                  }}
+                />
+              )}
+            </View>
+          ),
+        }}
+      />
     </Tabs>
   );
 };

@@ -36,7 +36,7 @@ const Index = () => {
           <View className="flex-row justify-between items-center px-4 py-4">
             <View>
               <Text className="text-2xl text-white">Hey,</Text>
-              <Text className="text-2xl text-blue-500">I'm</Text>
+              <Text className="text-2xl text-blue-500">Anupam</Text>
             </View>
             <AntDesign name="bells" size={24} color="white" />
           </View>
@@ -56,7 +56,7 @@ const Index = () => {
             ) : (
               <View>
                 <SearchBar
-                  onPress={() => router.push("/search")}
+                  
                   placeholder="Search Movies..."
                 />
                 <Text className="text-2xl text-white mt-10 font-bold">

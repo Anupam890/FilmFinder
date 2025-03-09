@@ -34,16 +34,16 @@ const Login = () => {
     setLoading(true);
     try {
       // Create email-password session in Appwrite
-      const session = await acc.createEmailPasswordSession(
-        userData.email,
-        userData.password
-      );
+      // const session = await acc.createEmailPasswordSession(
+      //   userData.email,
+      //   userData.password
+      // );
 
-      if (session) {
-        const user = await acc.get(); 
-        await login(user); 
-        router.replace("/(tabs)/home"); 
-      }
+      // if (session) {
+      //   // const user = await acc.get(); 
+      //   // await login(user); 
+      // }
+      router.push("/(tabs)/home"); 
     } catch (error) {
       console.error("Login error:", error);
       alert("Failed to login. Please check your credentials.");
@@ -65,7 +65,7 @@ const Login = () => {
 
           {/* Email Input */}
           <Text className="text-gray-400 mb-2">Email</Text>
-          <View className="bg-gray-800 rounded-lg p-4 mb-4 flex-row items-center">
+          <View className="bg-gray-800 rounded-lg p-2 mb-4 flex-row items-center">
             <AntDesign name="mail" size={20} color="#9CA3AF" />
             <TextInput
               className="flex-1 text-white text-base ml-3"
@@ -79,7 +79,7 @@ const Login = () => {
 
           {/* Password Input */}
           <Text className="text-gray-400 mb-2">Password</Text>
-          <View className="bg-gray-800 rounded-lg p-4 mb-6 flex-row items-center">
+          <View className="bg-gray-800 rounded-lg p-2 mb-6 flex-row items-center">
             <AntDesign name="lock" size={20} color="#9CA3AF" />
             <TextInput
               className="flex-1 text-white text-base ml-3"
@@ -98,7 +98,8 @@ const Login = () => {
             disabled={loading}
           >
             <Text className="text-[#161B2F] text-center text-lg font-bold">
-              {loading ? "Signing in..." : "Sign in"}
+              {/* {loading ? "Signing in..." : "Sign in"} */}
+              Sign In
             </Text>
           </TouchableOpacity>
 

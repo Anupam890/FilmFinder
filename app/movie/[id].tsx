@@ -41,12 +41,13 @@ const Info = () => {
 
   const handleShare = async () => {
     try {
+    
       const shareOptions = {
-        message: `Check out this movie: ${movie?.title}\n\n${
-          movie?.poster_path
-        }\n\nRating: ${movie?.vote_average?.toFixed(1)}/10`,
         title: `Share ${movie?.title}`,
-        url: movie?.homepage || `https://www.themoviedb.org/movie/${id}`,
+        message: `Check out this movie: ${
+          movie?.title
+        }\n\nRating: ${movie?.vote_average?.toFixed(1)}/10`,
+        url: `https://image.tmdb.org/t/p/w500${movie?.poster_path}`
       };
 
       await Share.share(shareOptions);
