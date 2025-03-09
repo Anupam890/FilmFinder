@@ -11,7 +11,7 @@ const TabLayout = () => {
         tabBarStyle: {
           backgroundColor: "#ffffff",
           position: "absolute",
-          bottom: 20,
+          bottom: 30,
           left: 20,
           right: 20,
           height: 60,
@@ -23,6 +23,7 @@ const TabLayout = () => {
           elevation: 5,
           paddingBottom: 0,
           borderTopWidth: 0,
+          
         },
         tabBarItemStyle: {
           paddingVertical: 5,

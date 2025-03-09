@@ -12,9 +12,9 @@ import {
 import React from "react";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter } from "expo-router";
-import SearchBar from "@/components/searchBar";
 import useFetch from "@/services/useFetch";
 import { getMovies } from "@/services/api";
+import SearchBar from "@/components/SearchBar";
 import MovieCard from "@/components/MovieCard";
 const Index = () => {
   const router = useRouter();
@@ -56,7 +56,7 @@ const Index = () => {
             ) : (
               <View>
                 <SearchBar
-                  onPress={() => router.push("/(tabs)/search")}
+                  onPress={() => router.push("/search")}
                   placeholder="Search Movies..."
                 />
                 <Text className="text-2xl text-white mt-10 font-bold">
