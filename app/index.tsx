@@ -56,7 +56,7 @@ export default function Index() {
                 />
               </View>
               <TouchableOpacity className="bg-secondary py-2 rounded-lg">
-                <Link href={"/(tabs)/home"} asChild>
+                <Link href={"/(auth)/register"} asChild>
                   <Text className="text-white text-center text-base font-semibold">
                     Get Started
                   </Text>

@@ -10,6 +10,7 @@ module.exports = {
         white: "#FFFFFF",
         black: "#000000",
         primary: "#4A4A4A",
+        highlight:"#FFD700",
       },
     },
   },

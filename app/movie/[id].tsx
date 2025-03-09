@@ -1,9 +1,18 @@
-import { View, Text, ScrollView, Image, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState } from "react";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { getMovieDetails } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { Share } from "react-native"; // Add this import
+import { router } from "expo-router";
 
 interface MovieReference {
   label: string;
@@ -22,16 +31,29 @@ const MovieInfo = ({ label, value }: MovieReference) => {
 };
 
 const Info = () => {
-  const [Fav,setFav] = useState([]);
+  const [Fav, setFav] = useState([]);
   const { id } = useLocalSearchParams();
   const {
     Data: movie,
     Error: error,
     Loading: loading,
   } = useFetch(() => getMovieDetails(id as string));
-  const handleFavorites = async()=>{
-    
-  }
+
+  const handleShare = async () => {
+    try {
+      const shareOptions = {
+        message: `Check out this movie: ${movie?.title}\n\n${
+          movie?.poster_path
+        }\n\nRating: ${movie?.vote_average?.toFixed(1)}/10`,
+        title: `Share ${movie?.title}`,
+        url: movie?.homepage || `https://www.themoviedb.org/movie/${id}`,
+      };
+
+      await Share.share(shareOptions);
+    } catch (error) {
+      console.error("Error sharing movie:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -68,18 +90,14 @@ const Info = () => {
           <Text className="text-2xl font-bold text-white">{movie?.title}</Text>
 
           <View className="flex-row items-center gap-3 mt-2">
-            {/* Release Year */}
             <Text className="text-white">
               {movie?.release_date?.split("-")[0] ?? "N/A"}
             </Text>
-
-            {/* Runtime */}
             {movie?.runtime ? (
               <Text className="text-white">{movie.runtime} min</Text>
             ) : null}
           </View>
 
-          {/* Ratings */}
           <View className="flex-row items-center gap-2 mt-2">
             <View className="flex-row items-center gap-1">
               <AntDesign name="star" size={20} color="#FFD700" />
@@ -95,20 +113,20 @@ const Info = () => {
 
         {/* 3 sections Bar  */}
         <View className="flex-row justify-around mt-5 px-5 py-3">
-          {/* Trailer */}
           <TouchableOpacity className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3">
             <AntDesign name="videocamera" size={28} color="#FFD700" />
             <Text className="text-white text-sm mt-1">Trailer</Text>
           </TouchableOpacity>
 
-          {/* Favorites */}
           <TouchableOpacity className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3">
             <AntDesign name="hearto" size={28} color="#FFD700" />
             <Text className="text-white text-sm mt-1">Favorites</Text>
           </TouchableOpacity>
 
-          {/* Share */}
-          <TouchableOpacity className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3">
+          <TouchableOpacity
+            onPress={handleShare}
+            className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3"
+          >
             <AntDesign name="sharealt" size={28} color="#FFD700" />
             <Text className="text-white text-sm mt-1">Share</Text>
           </TouchableOpacity>
@@ -120,7 +138,8 @@ const Info = () => {
           <MovieInfo
             label="Genres"
             value={
-              movie?.genres?.map((genre) => genre.name).join(" - ") ?? "N/A"
+              movie?.genres?.map((genre: any) => genre.name).join(" - ") ??
+              "N/A"
             }
           />
           <View className="flex-row justify-start gap-8 w-full">
@@ -134,12 +153,11 @@ const Info = () => {
             />
           </View>
 
-          {/* Production Companies */}
           <MovieInfo
             label="Production Companies"
             value={
               movie?.production_companies
-                ?.map((company) => company.name)
+                ?.map((company: any) => company.name)
                 .join(" - ") ?? "N/A"
             }
           />
@@ -149,7 +167,7 @@ const Info = () => {
         <View className="flex-col items-start justify-center mt-5 px-5 mb-5">
           <Text className="text-white font-bold text-lg mb-2">Casts</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {movie?.cast?.slice(0, 5).map((cast: any) => (
+            {movie?.cast?.slice(0, 10).map((cast: any) => (
               <View
                 key={cast.id}
                 className="flex-col items-center justify-center mr-5"
@@ -171,8 +189,18 @@ const Info = () => {
             ))}
           </ScrollView>
         </View>
-      </ScrollView>
 
+        <View>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="flex-row items-center justify-center bg-gray-700 py-3 gap-2"
+          >
+            <AntDesign name="arrowleft" size={24} color="#FFD700" />
+            <Text className="text-white text-sm">Back</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      {/* back button  */}
     </View>
   );
 };
