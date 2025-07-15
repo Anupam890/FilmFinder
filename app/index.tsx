@@ -3,16 +3,12 @@ import {
   View,
   ImageBackground,
   TouchableOpacity,
-  TextInput,
-  Keyboard,
-  TouchableWithoutFeedback,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
 } from "react-native";
 import { Link } from "expo-router";
 import React, { useEffect } from "react";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { BlurView } from "expo-blur";
 import Animated, {
   useSharedValue,
@@ -25,7 +21,7 @@ export default function Index() {
 
   useEffect(() => {
     fadeIn.value = withTiming(1, { duration: 1000 });
-  }, [fadeIn]);
+  }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: fadeIn.value,
@@ -37,35 +33,36 @@ export default function Index() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ImageBackground
-          source={require("@/assets/images/background.jpeg")}
-          style={{ flex: 1 }}
-        >
-          <StatusBar barStyle="light-content" hidden />
-          <View className="flex-1 justify-center items-center px-4">
-            <Animated.View
-              style={[animatedStyle, { width: "100%", maxWidth: 300 }]}
+      <ImageBackground
+        source={require("@/assets/images/background.jpeg")}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+
+        <View className="flex-1 justify-end pb-20 px-6">
+          <Animated.View style={[animatedStyle]}>
+            <BlurView
+              intensity={60}
+              tint="dark"
+              className="p-6 rounded-2xl bg-black/30"
             >
-              <View className="bg-gray-800 rounded-lg mb-2 px-3 py-1 flex-row items-center">
-                <AntDesign name="user" size={18} color="#9CA3AF" />
-                <TextInput
-                  className="flex-1 text-white ml-2 text-sm"
-                  placeholder="Enter your Name"
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-              <TouchableOpacity className="bg-secondary py-2 rounded-lg">
-                <Link href={"/(auth)/register"} asChild>
-                  <Text className="text-white text-center text-base font-semibold">
+              <Text className="text-white text-3xl font-bold mb-2">Welcome</Text>
+              <Text className="text-gray-300 text-base mb-6">
+                Discover trending movies and save your favorites.
+              </Text>
+
+              <Link href={"/(auth)/register"} asChild>
+                <TouchableOpacity className="bg-secondary py-3 rounded-xl">
+                  <Text className="text-white text-center text-lg font-semibold">
                     Get Started
                   </Text>
-                </Link>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
-        </ImageBackground>
-      </TouchableWithoutFeedback>
+                </TouchableOpacity>
+              </Link>
+            </BlurView>
+          </Animated.View>
+        </View>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 }

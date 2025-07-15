@@ -16,6 +16,7 @@ import MovieCard from "@/components/MovieCard";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
+
   const {
     Data: movies = [],
     Error: error,
@@ -26,12 +27,15 @@ const Search = () => {
 
   useEffect(() => {
     const delayDebounce = setTimeout(async () => {
+      
       if (searchQuery.trim()) {
         await loadMovies();
       } else {
         reset();
       }
-    }, 500);
+    }
+    
+    , 500);
 
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
@@ -43,9 +47,39 @@ const Search = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="flex-1 px-5 pt-10">
-          <Text className="text-2xl text-white font-bold mb-6">Search Movies</Text>
-           
-           <FlatList
+          <Text className="text-2xl text-white font-bold mb-4">Search Movies</Text>
+
+          {/* Search Bar */}
+          <View className="w-full mb-4">
+            <SearchBar
+              value={searchQuery}
+              placeholder="Search Movies..."
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
+          {/* Loading Indicator */}
+          {loading && (
+            <ActivityIndicator size="large" color="white" className="mt-6" />
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <Text className="text-red-500 mt-4 self-center">
+              Error: {error.message}
+            </Text>
+          )}
+
+          {/* Result Header */}
+          {!loading && !error && searchQuery.trim() && movies?.length > 0 && (
+            <Text className="text-xl text-white font-bold mb-2">
+              Search Results for{" "}
+              <Text className="text-accent">{searchQuery}</Text>
+            </Text>
+          )}
+
+          {/* Movie List */}
+          <FlatList
             data={movies}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => <MovieCard {...item} />}
@@ -55,31 +89,17 @@ const Search = () => {
               gap: 12,
               marginVertical: 10,
             }}
-            contentContainerStyle={{ paddingBottom: 100, marginTop: 10 }}
+            contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              !loading &&
+              searchQuery.trim().length > 0 && (
+                <Text className="text-white self-center mt-10">
+                  No movies found for "{searchQuery}"
+                </Text>
+              )
+            }
           />
-          <View className="w-full mb-4">
-            <SearchBar
-              value={searchQuery}
-              placeholder="Search Movies..."
-              onChangeText={setSearchQuery}
-            />
-          </View>
-
-          {loading && <ActivityIndicator size="large" color="white" className="mt-6" />}
-          {error && (
-            <Text className="text-red-500 mt-4 self-center">
-              Error: {error?.message}
-            </Text>
-          )}
-
-          {!loading && !error && searchQuery.trim() && movies?.length > 0 && (
-            <Text className="text-xl text-white font-bold">
-              Search Results for <Text className="text-accent">{searchQuery}</Text>
-            </Text>
-          )}
-
-          
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>

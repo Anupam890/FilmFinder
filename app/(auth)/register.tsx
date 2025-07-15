@@ -8,8 +8,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
+  ActivityIndicator,
   Switch,
-  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { router } from "expo-router";
@@ -27,24 +27,22 @@ const Register = () => {
     email: "",
     password: "",
   });
-  const [isAccepted, setIsAccepted] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (key: string, value: string) => {
-    setUserData({ ...userData, [key]: value });
+  const handleChange = (field: string, value: string) => {
+    setUserData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleRegister = async () => {
     if (!isAccepted) {
-      Alert.alert(
-        "Terms Required",
-        "Please accept the terms and privacy policy."
-      );
+      alert("Please accept the terms and privacy policy.");
       return;
     }
 
     if (!userData.name || !userData.email || !userData.password) {
-      Alert.alert("Missing Fields", "Please fill in all the fields.");
+      alert("Please fill in all fields.");
       return;
     }
 
@@ -62,17 +60,10 @@ const Register = () => {
 
       await sendEmailVerification(userCredential.user);
 
-      Alert.alert(
-        "Success",
-        "Verification email sent. Please check your inbox."
-      );
+      alert("Verification email sent. Please check your inbox.");
       router.push("/(auth)/login");
     } catch (error: any) {
-      console.error("Registration error:", error);
-      Alert.alert(
-        "Registration Failed",
-        error.message || "Something went wrong."
-      );
+      alert(error?.message || "Registration failed.");
     } finally {
       setLoading(false);
     }
@@ -85,111 +76,131 @@ const Register = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View className="bg-[#161B2F] h-full flex-1 justify-center px-6">
-          <Text className="text-white text-2xl font-bold mb-8 text-center">
-            Sign up
+          {/* Title */}
+          <Text className="text-white text-2xl font-bold mb-6 text-center">
+            Sign Up
           </Text>
 
-          <Text className="text-gray-400 mb-2">Full Name</Text>
-          <View className="bg-gray-800 rounded-lg p-2 mb-4 flex-row items-center">
-            <AntDesign name="user" size={20} color="#9CA3AF" />
+          {/* Name */}
+          <Text className="text-gray-400 mb-1">Full Name</Text>
+          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center">
+            <AntDesign name="user" size={20} color="#fff" />
             <TextInput
-              className="flex-1 text-white text-base ml-3"
-              placeholder="Full Name"
-              placeholderTextColor="#9CA3AF"
+              className="flex-1 text-white ml-2 text-base"
+              placeholder="Full name"
+              placeholderTextColor="#fff"
+              value={userData.name}
               onChangeText={(text) => handleChange("name", text)}
               autoCapitalize="words"
-              value={userData.name}
             />
           </View>
 
-          <Text className="text-gray-400 mb-2">Email</Text>
-          <View className="bg-gray-800 rounded-lg p-2 mb-4 flex-row items-center">
-            <AntDesign name="mail" size={20} color="#9CA3AF" />
+          {/* Email */}
+          <Text className="text-gray-400 mb-1">Email</Text>
+          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center">
+            <AntDesign name="mail" size={20} color="#fff" />
             <TextInput
-              className="flex-1 text-white text-base ml-3"
+              className="flex-1 text-white ml-2 text-base"
               placeholder="Your email"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#fff"
+              value={userData.email}
               onChangeText={(text) => handleChange("email", text)}
               keyboardType="email-address"
               autoCapitalize="none"
-              value={userData.email}
             />
           </View>
 
-          <Text className="text-gray-400 mb-2">Password</Text>
-          <View className="bg-gray-800 rounded-lg p-2 mb-4 flex-row items-center">
-            <AntDesign name="lock" size={20} color="#9CA3AF" />
+          {/* Password */}
+          <Text className="text-gray-400 mb-1">Password</Text>
+          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center">
+            <AntDesign name="lock" size={20} color="#fff" />
             <TextInput
-              className="flex-1 text-white text-base ml-3"
+              className="flex-1 text-white ml-2 text-base"
               placeholder="Enter your password"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              onChangeText={(text) => handleChange("password", text)}
-              autoCapitalize="none"
+              placeholderTextColor="#fff"
               value={userData.password}
+              onChangeText={(text) => handleChange("password", text)}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
             />
-            <AntDesign name="eye" size={20} color="#9CA3AF" />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <AntDesign
+                name={showPassword ? "eye" : "eyeo"}
+                size={20}
+                color="#fff"
+              />
+            </TouchableOpacity>
           </View>
 
-          <View className="flex-row items-center mb-6">
-            <Switch
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isAccepted ? "#f5dd4b" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={setIsAccepted}
-              value={isAccepted}
-            />
-            <Text className="text-gray-400 text-base ml-2">
-              I accept the terms and privacy policy
-            </Text>
-          </View>
-
+          {/* Terms */}
           <TouchableOpacity
-            className="bg-[#FFD700] py-4 rounded-xl mb-6"
-            onPress={handleRegister}
-            disabled={loading}
+            className="flex-row items-center mb-6"
+            onPress={() => setIsAccepted(!isAccepted)}
           >
-            <Text className="text-[#161B2F] text-center text-lg font-bold">
-              {loading ? "Registering..." : "Sign up"}
+            <AntDesign
+              name={isAccepted ? "checkcircle" : "checkcircleo"}
+              size={18}
+              color={isAccepted ? "#FFD700" : "#6B7280"}
+            />
+            <Text className="ml-2 text-white">
+              I accept the terms and privacy policy
             </Text>
           </TouchableOpacity>
 
-          <Text className="text-gray-400 text-center text-base mb-6">
-            Or Register with
-          </Text>
-          <View className="flex-row justify-center gap-4 mb-6">
-            <TouchableOpacity className="rounded-full p-3">
-              <Image
-                source={{
-                  uri: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Facebook_icon_2013.svg",
-                }}
-                className="w-6 h-6"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity className="rounded-full p-3">
-              <Image
-                source={{
-                  uri: "https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg",
-                }}
-                className="w-6 h-6"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity className="rounded-full p-3">
-              <Image
-                source={{
-                  uri: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
-                }}
-                className="w-6 h-6"
-              />
-            </TouchableOpacity>
+          {/* Register Button */}
+          <TouchableOpacity
+            className="bg-[#FFD700] py-4 rounded-full mb-6"
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#161B2F" />
+            ) : (
+              <Text className="text-[#161B2F] text-center text-base font-bold">
+                Sign Up
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Divider */}
+          <View className="flex-row items-center justify-center mb-4">
+            <View className="flex-1 h-px bg-gray-600" />
+            <Text className="text-gray-400 px-2">Or Register with</Text>
+            <View className="flex-1 h-px bg-gray-600" />
           </View>
 
-          <TouchableOpacity
-            className="mt-8"
-            onPress={() => router.push("/(auth)/login")}
-          >
-            <Text className="text-[#FFD700] text-center text-base">
-              Already have an account? Log in
+          {/* Social Logins */}
+          <View className="flex-row justify-between gap-3 mb-8">
+            {[{
+              name: "Facebook",
+              icon: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Facebook_icon_2013.svg",
+            }, {
+              name: "Google",
+              icon: "https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg",
+            }, {
+              name: "Apple",
+              icon: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
+            }].map((provider, i) => (
+              <TouchableOpacity
+                key={i}
+                className="flex-1 bg-white py-3 rounded-lg flex-row items-center justify-center"
+              >
+                <Image
+                  source={{ uri: provider.icon }}
+                  className="w-5 h-5 mr-2"
+                />
+                <Text className="text-black font-semibold">
+                  {provider.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Sign In Link */}
+          <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+            <Text className="text-white text-center">
+              Already have an account?{" "}
+              <Text className="text-[#FFD700] font-semibold">Log In</Text>
             </Text>
           </TouchableOpacity>
         </View>
