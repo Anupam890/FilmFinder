@@ -9,10 +9,11 @@ export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)/home" />
       ) : (
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/login" />
       )}
+      <Stack.Screen name="(auth)/register" />
     </Stack>
   );
 }

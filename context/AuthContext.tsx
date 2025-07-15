@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth } from "@/services/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 export const AuthContext = createContext({
   user: null,
@@ -15,32 +17,32 @@ const AuthContextFunction = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem("user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-      } finally {
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        setIsAuthenticated(true);
+        await AsyncStorage.setItem("user", JSON.stringify(currentUser));
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        await AsyncStorage.removeItem("user");
       }
-    };
-    checkAuth();
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const login = async (userData) => {
+    await AsyncStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);
-    await AsyncStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = async () => {
+    await signOut(auth);
+    await AsyncStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
-    await AsyncStorage.removeItem("user");
   };
 
   return (
@@ -50,8 +52,6 @@ const AuthContextFunction = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
 export default AuthContextFunction;

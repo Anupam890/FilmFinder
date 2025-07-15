@@ -8,45 +8,38 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState, useContext } from "react";
 import { router } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { AuthContext } from "@/context/AuthContext";
-import { client } from "@/services/appwrite";
-import { Account } from "react-native-appwrite";
-
+import { auth } from "@/services/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 const Login = () => {
-  const [userData, setUserData] = useState({
-    email: "",
-    password: "",
-  });
+  const [userData, setUserData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const { login } = useContext(AuthContext);
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: string, value: string) => {
     setUserData((prev) => ({ ...prev, [field]: value }));
   };
-
-  const acc = new Account(client);
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-      // Create email-password session in Appwrite
-      // const session = await acc.createEmailPasswordSession(
-      //   userData.email,
-      //   userData.password
-      // );
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        userData.email,
+        userData.password
+      );
 
-      // if (session) {
-      //   // const user = await acc.get(); 
-      //   // await login(user); 
-      // }
-      router.push("/(tabs)/home"); 
-    } catch (error) {
+      const user = userCredential.user;
+      await login(user);
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
       console.error("Login error:", error);
-      alert("Failed to login. Please check your credentials.");
+      alert(error?.message || "Failed to login.");
     } finally {
       setLoading(false);
     }
@@ -74,6 +67,7 @@ const Login = () => {
               onChangeText={(text) => handleChange("email", text)}
               keyboardType="email-address"
               autoCapitalize="none"
+              value={userData.email}
             />
           </View>
 
@@ -88,6 +82,7 @@ const Login = () => {
               secureTextEntry
               onChangeText={(text) => handleChange("password", text)}
               autoCapitalize="none"
+              value={userData.password}
             />
           </View>
 
@@ -97,13 +92,16 @@ const Login = () => {
             onPress={handleLogin}
             disabled={loading}
           >
-            <Text className="text-[#161B2F] text-center text-lg font-bold">
-              {/* {loading ? "Signing in..." : "Sign in"} */}
-              Sign In
-            </Text>
+            {loading ? (
+              <ActivityIndicator size="small" color="#161B2F" />
+            ) : (
+              <Text className="text-[#161B2F] text-center text-lg font-bold">
+                Sign In
+              </Text>
+            )}
           </TouchableOpacity>
 
-          {/* Social Sign-In Options */}
+          {/* Social Sign-In Options (optional) */}
           <Text className="text-gray-400 text-center text-base mb-6">
             Or Sign in with
           </Text>
