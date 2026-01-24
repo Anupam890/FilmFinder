@@ -8,80 +8,149 @@ import {
   ScrollView,
   ActivityIndicator,
   FlatList,
+  TouchableOpacity,
+  Image,
 } from "react-native";
-import React from "react";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import React, { useContext } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import useFetch from "@/services/useFetch";
-import { getMovies } from "@/services/api";
+import {
+  getMovies,
+  getTrendingMovies,
+  getPopularMovies,
+  getTopRatedMovies,
+  getUpcomingMovies,
+} from "@/services/api";
 import SearchBar from "@/components/SearchBar";
 import MovieCard from "@/components/MovieCard";
-const Index = () => {
-  const router = useRouter();
+import FeaturedCard from "@/components/FeaturedCard";
+import { AuthContext } from "@/context/AuthContext";
 
-  const {
-    Data: movies,
-    Error: error,
-    Loading: loading,
-  } = useFetch(() => getMovies({ query: "" }));
+const Home = () => {
+  const router = useRouter();
+  const { user } = useContext(AuthContext);
+
+  const { Data: trending, Loading: trendingLoading } =
+    useFetch(getTrendingMovies);
+  const { Data: popular, Loading: popularLoading } = useFetch(getPopularMovies);
+  const { Data: topRated, Loading: topRatedLoading } =
+    useFetch(getTopRatedMovies);
+  const { Data: upcoming, Loading: upcomingLoading } =
+    useFetch(getUpcomingMovies);
+
+  const renderSection = (
+    title: string,
+    data: any[],
+    loading: boolean,
+    isFeatured = false,
+  ) => {
+    if (loading) {
+      return (
+        <ActivityIndicator size="small" color="#FFD700" className="my-10" />
+      );
+    }
+
+    return (
+      <View className="mt-8">
+        <View className="flex-row justify-between items-center px-6 mb-4">
+          <Text className="text-xl font-bold text-white tracking-tight">
+            {title}
+          </Text>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/search")}>
+            <Text className="text-[#FFD700] text-sm font-semibold">
+              See All
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          data={data}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="pl-6"
+          contentContainerStyle={{ paddingRight: 40 }}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) =>
+            isFeatured ? (
+              <FeaturedCard
+                id={item.id}
+                title={item.title}
+                backdrop_path={item.backdrop_path}
+                vote_average={item.vote_average}
+                overview={item.overview}
+              />
+            ) : (
+              <MovieCard
+                id={item.id}
+                title={item.title}
+                poster_path={item.poster_path}
+                vote_average={item.vote_average}
+                release_date={item.release_date}
+              />
+            )
+          }
+        />
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1"
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="bg-[#161B2F] h-full">
-          <View className="flex-row justify-between items-center px-4 py-4">
-            <View>
-              <Text className="text-2xl text-white">Hey,</Text>
-              <Text className="text-2xl text-blue-500">Anupam</Text>
-            </View>
-            <AntDesign name="bells" size={24} color="white" />
-          </View>
-          <ScrollView
-            className="flex-1 px-5"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ minHeight: "100%", paddingBottom: 10 }}
-          >
-            {loading ? (
-              <ActivityIndicator
-                size="large"
-                color="white"
-                className="mt-10 self-center"
+        <View className="bg-[#161B2F] flex-1">
+          {/* Header */}
+          <View className="pt-14 pb-6 px-6 flex-row justify-between items-center bg-[#161B2F]">
+            <View className="flex-row items-center">
+              <Image
+                source={require("@/assets/images/logo.png")}
+                className="w-12 h-12 mr-3"
+                resizeMode="contain"
               />
-            ) : error ? (
-              <Text className="text-white"> Error: {error?.message}</Text>
-            ) : (
               <View>
-                <SearchBar
-                  
-                  placeholder="Search Movies..."
-                />
-                <Text className="text-2xl text-white mt-10 font-bold">
-                  Latest Movies
+                <Text className="text-gray-400 text-sm font-medium">
+                  Welcome back,
                 </Text>
-                <FlatList
-                  data={movies}
-                  renderItem={({ item }) => (
-                    <MovieCard
-                      {...item}
-                    />
-                  )}
-                  keyExtractor={(item) => item.id.toString()}
-                  numColumns={3}
-                  columnWrapperStyle={{
-                    justifyContent: "flex-start",
-                    marginBottom: 10,
-                    gap: 20,
-                    paddingRight: 5,
-                  }}
-                  className="mt-5 pb-32"
-                  scrollEnabled={false}
-                />
+                <Text className="text-white text-2xl font-bold">
+                  {user?.displayName || "Movie Lover"}!
+                </Text>
               </View>
+            </View>
+            <TouchableOpacity
+              className="bg-[#1F2937] p-2 rounded-full border border-gray-700"
+              onPress={() => router.push("/(tabs)/profile")}
+            >
+              <Ionicons name="notifications-outline" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+          >
+            {/* Search Bar Section */}
+            <View className="px-6 mt-2">
+              <SearchBar
+                placeholder="Search for movies..."
+                onPress={() => router.push("/(tabs)/search")}
+                editable={false}
+              />
+            </View>
+
+            {/* Movie Sections */}
+            {renderSection(
+              "Trending Now",
+              trending || [],
+              trendingLoading,
+              true,
             )}
+            {renderSection("Popular", popular || [], popularLoading)}
+            {renderSection("Upcoming", upcoming || [], upcomingLoading)}
+            {renderSection("Top Rated", topRated || [], topRatedLoading)}
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
@@ -89,4 +158,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Home;

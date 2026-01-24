@@ -1,13 +1,13 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
 const ICONS = {
-  home: "home",
-  search: "search1",
-  saved: "hearto",
-  profile: "user",
+  home: { focused: "home", default: "home-outline" },
+  search: { focused: "search", default: "search-outline" },
+  saved: { focused: "heart", default: "heart-outline" },
+  profile: { focused: "person", default: "person-outline" },
 };
 
 const FocusIndicator = () => (
@@ -22,10 +22,26 @@ const FocusIndicator = () => (
   />
 );
 
-const createTabIcon = (iconName: keyof typeof ICONS) => {
-  return ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
+const createTabIcon = (iconKey: keyof typeof ICONS) => {
+  return ({
+    color,
+    size,
+    focused,
+  }: {
+    color: string;
+    size: number;
+    focused: boolean;
+  }) => (
     <View style={{ alignItems: "center" }}>
-      <AntDesign name={ICONS[iconName]} color={color} size={size} />
+      <Ionicons
+        name={
+          focused
+            ? (ICONS[iconKey].focused as any)
+            : (ICONS[iconKey].default as any)
+        }
+        color={color}
+        size={size}
+      />
       {focused && <FocusIndicator />}
     </View>
   );
@@ -37,14 +53,16 @@ const TabLayout = () => {
       screenOptions={{
         tabBarShowLabel: false,
         tabBarActiveTintColor: "#FFD700",
-        tabBarInactiveTintColor: "#6b7280",
+        tabBarInactiveTintColor: "#9ca3af",
         tabBarStyle: {
-          backgroundColor: "#1f2937",
+          backgroundColor: "#161B2F",
           borderTopWidth: 0,
           height: 80,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarItemStyle: {
-          paddingVertical: 5,
+          paddingVertical: 10,
         },
       }}
     >

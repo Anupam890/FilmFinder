@@ -9,11 +9,10 @@ import {
   TouchableWithoutFeedback,
   Platform,
   ActivityIndicator,
-  Switch,
 } from "react-native";
 import React, { useState } from "react";
 import { router } from "expo-router";
-import AntDesign from "@expo/vector-icons/AntDesign";
+import { Ionicons } from "@expo/vector-icons";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
@@ -51,7 +50,7 @@ const Register = () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         userData.email,
-        userData.password
+        userData.password,
       );
 
       await updateProfile(userCredential.user, {
@@ -83,51 +82,54 @@ const Register = () => {
 
           {/* Name */}
           <Text className="text-gray-400 mb-1">Full Name</Text>
-          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center">
-            <AntDesign name="user" size={20} color="#fff" />
+          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center border border-gray-700">
+            <Ionicons name="person-outline" size={20} color="#9ca3af" />
             <TextInput
               className="flex-1 text-white ml-2 text-base"
               placeholder="Full name"
-              placeholderTextColor="#fff"
+              placeholderTextColor="#9ca3af"
               value={userData.name}
               onChangeText={(text) => handleChange("name", text)}
               autoCapitalize="words"
+              style={{ color: "#fff" }}
             />
           </View>
 
           {/* Email */}
           <Text className="text-gray-400 mb-1">Email</Text>
-          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center">
-            <AntDesign name="mail" size={20} color="#fff" />
+          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center border border-gray-700">
+            <Ionicons name="mail-outline" size={20} color="#9ca3af" />
             <TextInput
               className="flex-1 text-white ml-2 text-base"
               placeholder="Your email"
-              placeholderTextColor="#fff"
+              placeholderTextColor="#9ca3af"
               value={userData.email}
               onChangeText={(text) => handleChange("email", text)}
               keyboardType="email-address"
               autoCapitalize="none"
+              style={{ color: "#fff" }}
             />
           </View>
 
           {/* Password */}
           <Text className="text-gray-400 mb-1">Password</Text>
-          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center">
-            <AntDesign name="lock" size={20} color="#fff" />
+          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center border border-gray-700">
+            <Ionicons name="lock-closed-outline" size={20} color="#9ca3af" />
             <TextInput
               className="flex-1 text-white ml-2 text-base"
               placeholder="Enter your password"
-              placeholderTextColor="#fff"
+              placeholderTextColor="#9ca3af"
               value={userData.password}
               onChangeText={(text) => handleChange("password", text)}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
+              style={{ color: "#fff" }}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <AntDesign
-                name={showPassword ? "eye" : "eyeo"}
+              <Ionicons
+                name={showPassword ? "eye-outline" : "eye-off-outline"}
                 size={20}
-                color="#fff"
+                color="#9ca3af"
               />
             </TouchableOpacity>
           </View>
@@ -137,9 +139,9 @@ const Register = () => {
             className="flex-row items-center mb-6"
             onPress={() => setIsAccepted(!isAccepted)}
           >
-            <AntDesign
-              name={isAccepted ? "checkcircle" : "checkcircleo"}
-              size={18}
+            <Ionicons
+              name={isAccepted ? "checkmark-circle" : "ellipse-outline"}
+              size={20}
               color={isAccepted ? "#FFD700" : "#6B7280"}
             />
             <Text className="ml-2 text-white">
@@ -171,25 +173,21 @@ const Register = () => {
 
           {/* Social Logins */}
           <View className="flex-row justify-between gap-3 mb-8">
-            {[{
-              name: "Facebook",
-              icon: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Facebook_icon_2013.svg",
-            }, {
-              name: "Google",
-              icon: "https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg",
-            }, {
-              name: "Apple",
-              icon: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
-            }].map((provider, i) => (
+            {[
+              { name: "Facebook", icon: "logo-facebook", color: "#1877F2" },
+              { name: "Google", icon: "logo-google", color: "#DB4437" },
+              { name: "Apple", icon: "logo-apple", color: "#000000" },
+            ].map((provider, i) => (
               <TouchableOpacity
                 key={i}
                 className="flex-1 bg-white py-3 rounded-lg flex-row items-center justify-center"
               >
-                <Image
-                  source={{ uri: provider.icon }}
-                  className="w-5 h-5 mr-2"
+                <Ionicons
+                  name={provider.icon as any}
+                  size={20}
+                  color={provider.color}
                 />
-                <Text className="text-black font-semibold">
+                <Text className="text-black font-semibold ml-2">
                   {provider.name}
                 </Text>
               </TouchableOpacity>

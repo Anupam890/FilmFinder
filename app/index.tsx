@@ -2,6 +2,7 @@ import {
   Text,
   View,
   ImageBackground,
+  Image,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -38,7 +39,11 @@ export default function Index() {
         style={{ flex: 1 }}
         resizeMode="cover"
       >
-        <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+        <StatusBar
+          barStyle="light-content"
+          translucent
+          backgroundColor="transparent"
+        />
 
         <View className="flex-1 justify-end pb-20 px-6">
           <Animated.View style={[animatedStyle]}>
@@ -47,7 +52,14 @@ export default function Index() {
               tint="dark"
               className="p-6 rounded-2xl bg-black/30"
             >
-              <Text className="text-white text-3xl font-bold mb-2">Welcome</Text>
+              <Image
+                source={require("@/assets/images/logo.png")}
+                className="w-20 h-20 mb-4"
+                resizeMode="contain"
+              />
+              <Text className="text-white text-3xl font-bold mb-2">
+                FilmFinder
+              </Text>
               <Text className="text-gray-300 text-base mb-6">
                 Discover trending movies and save your favorites.
               </Text>
