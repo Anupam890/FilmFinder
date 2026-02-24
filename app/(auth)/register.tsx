@@ -9,7 +9,10 @@ import {
   TouchableWithoutFeedback,
   Platform,
   ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,7 +29,6 @@ const Register = () => {
     email: "",
     password: "",
   });
-  const [isAccepted, setIsAccepted] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -35,18 +37,15 @@ const Register = () => {
   };
 
   const handleRegister = async () => {
-    if (!isAccepted) {
-      alert("Please accept the terms and privacy policy.");
-      return;
-    }
-
     if (!userData.name || !userData.email || !userData.password) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       alert("Please fill in all fields.");
       return;
     }
 
     try {
       setLoading(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         userData.email,
@@ -69,141 +68,182 @@ const Register = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="bg-[#161B2F] h-full flex-1 justify-center px-6">
-          {/* Title */}
-          <Text className="text-white text-2xl font-bold mb-6 text-center">
-            Sign Up
-          </Text>
-
-          {/* Name */}
-          <Text className="text-gray-400 mb-1">Full Name</Text>
-          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center border border-gray-700">
-            <Ionicons name="person-outline" size={20} color="#9ca3af" />
-            <TextInput
-              className="flex-1 text-white ml-2 text-base"
-              placeholder="Full name"
-              placeholderTextColor="#9ca3af"
-              value={userData.name}
-              onChangeText={(text) => handleChange("name", text)}
-              autoCapitalize="words"
-              style={{ color: "#fff" }}
-            />
-          </View>
-
-          {/* Email */}
-          <Text className="text-gray-400 mb-1">Email</Text>
-          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center border border-gray-700">
-            <Ionicons name="mail-outline" size={20} color="#9ca3af" />
-            <TextInput
-              className="flex-1 text-white ml-2 text-base"
-              placeholder="Your email"
-              placeholderTextColor="#9ca3af"
-              value={userData.email}
-              onChangeText={(text) => handleChange("email", text)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              style={{ color: "#fff" }}
-            />
-          </View>
-
-          {/* Password */}
-          <Text className="text-gray-400 mb-1">Password</Text>
-          <View className="bg-gray-800 rounded-lg p-3 mb-4 flex-row items-center border border-gray-700">
-            <Ionicons name="lock-closed-outline" size={20} color="#9ca3af" />
-            <TextInput
-              className="flex-1 text-white ml-2 text-base"
-              placeholder="Enter your password"
-              placeholderTextColor="#9ca3af"
-              value={userData.password}
-              onChangeText={(text) => handleChange("password", text)}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              style={{ color: "#fff" }}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
-                size={20}
-                color="#9ca3af"
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Terms */}
-          <TouchableOpacity
-            className="flex-row items-center mb-6"
-            onPress={() => setIsAccepted(!isAccepted)}
-          >
-            <Ionicons
-              name={isAccepted ? "checkmark-circle" : "ellipse-outline"}
-              size={20}
-              color={isAccepted ? "#FFD700" : "#6B7280"}
-            />
-            <Text className="ml-2 text-white">
-              I accept the terms and privacy policy
-            </Text>
-          </TouchableOpacity>
-
-          {/* Register Button */}
-          <TouchableOpacity
-            className="bg-[#FFD700] py-4 rounded-full mb-6"
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#161B2F" />
-            ) : (
-              <Text className="text-[#161B2F] text-center text-base font-bold">
-                Sign Up
-              </Text>
-            )}
-          </TouchableOpacity>
-
-          {/* Divider */}
-          <View className="flex-row items-center justify-center mb-4">
-            <View className="flex-1 h-px bg-gray-600" />
-            <Text className="text-gray-400 px-2">Or Register with</Text>
-            <View className="flex-1 h-px bg-gray-600" />
-          </View>
-
-          {/* Social Logins */}
-          <View className="flex-row justify-between gap-3 mb-8">
-            {[
-              { name: "Facebook", icon: "logo-facebook", color: "#1877F2" },
-              { name: "Google", icon: "logo-google", color: "#DB4437" },
-              { name: "Apple", icon: "logo-apple", color: "#000000" },
-            ].map((provider, i) => (
-              <TouchableOpacity
-                key={i}
-                className="flex-1 bg-white py-3 rounded-lg flex-row items-center justify-center"
-              >
-                <Ionicons
-                  name={provider.icon as any}
-                  size={20}
-                  color={provider.color}
-                />
-                <Text className="text-black font-semibold ml-2">
-                  {provider.name}
+    <SafeAreaView className="flex-1 bg-backGround">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View className="flex-1 justify-center px-8 py-10">
+              {/* Header Section */}
+              <View className="items-center mb-8">
+                <View className="bg-[#1F263F] p-5 rounded-[30px] shadow-2xl shadow-black/50 border border-white/5 mb-6">
+                  <Ionicons name="sparkles" size={50} color="#FFD700" />
+                </View>
+                <Text className="text-white text-3xl font-extrabold tracking-tight">
+                  Create Account
                 </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                <Text className="text-gray-400 text-sm mt-2 font-medium">
+                  Join our community of movie lovers
+                </Text>
+              </View>
 
-          {/* Sign In Link */}
-          <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-            <Text className="text-white text-center">
-              Already have an account?{" "}
-              <Text className="text-[#FFD700] font-semibold">Log In</Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+              {/* Form Section */}
+              <View className="space-y-4">
+                <View>
+                  <Text className="text-gray-400 mb-2 ml-1 text-xs font-bold uppercase tracking-widest">
+                    Full Name
+                  </Text>
+                  <View className="bg-[#1F2937]/50 rounded-2xl p-3 flex-row items-center border border-white/5">
+                    <Ionicons name="person-outline" size={20} color="#9ca3af" />
+                    <TextInput
+                      className="flex-1 text-white ml-3 text-base font-medium"
+                      placeholder="John Doe"
+                      placeholderTextColor="#4B5563"
+                      value={userData.name}
+                      onChangeText={(text) => handleChange("name", text)}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View className="mt-4">
+                  <Text className="text-gray-400 mb-2 ml-1 text-xs font-bold uppercase tracking-widest">
+                    Email Address
+                  </Text>
+                  <View className="bg-[#1F2937]/50 rounded-2xl p-3 flex-row items-center border border-white/5">
+                    <Ionicons name="mail-outline" size={20} color="#9ca3af" />
+                    <TextInput
+                      className="flex-1 text-white ml-3 text-base font-medium"
+                      placeholder="name@example.com"
+                      placeholderTextColor="#4B5563"
+                      value={userData.email}
+                      onChangeText={(text) => handleChange("email", text)}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  </View>
+                </View>
+
+                <View className="mt-4">
+                  <Text className="text-gray-400 mb-2 ml-1 text-xs font-bold uppercase tracking-widest">
+                    Password
+                  </Text>
+                  <View className="bg-[#1F2937]/50 rounded-2xl p-3 flex-row items-center border border-white/5">
+                    <Ionicons
+                      name="lock-closed-outline"
+                      size={20}
+                      color="#9ca3af"
+                    />
+                    <TextInput
+                      className="flex-1 text-white ml-3 text-base font-medium"
+                      placeholder="••••••••"
+                      placeholderTextColor="#4B5563"
+                      value={userData.password}
+                      onChangeText={(text) => handleChange("password", text)}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        setShowPassword(!showPassword);
+                      }}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off-outline" : "eye-outline"}
+                        size={20}
+                        color="#9ca3af"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <Text className="text-gray-500 text-[10px] mt-4 text-center leading-4">
+                  By signing up, you agree to our{" "}
+                  <Text className="text-secondary font-bold">
+                    Terms of Service
+                  </Text>{" "}
+                  and{" "}
+                  <Text className="text-secondary font-bold">
+                    Privacy Policy
+                  </Text>
+                </Text>
+              </View>
+
+              {/* Action Button */}
+              <TouchableOpacity
+                className="bg-[#FFD700] p-4 rounded-2xl mt-8 shadow-xl shadow-[#FFD700]/20 h-14 justify-center"
+                onPress={handleRegister}
+                disabled={loading}
+                activeOpacity={0.8}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#161B2F" />
+                ) : (
+                  <Text className="text-[#161B2F] text-center text-lg font-bold">
+                    Create Account
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Divider */}
+              <View className="flex-row items-center my-10">
+                <View className="flex-1 h-[1px] bg-white/5" />
+                <Text className="text-gray-500 px-4 text-xs font-bold uppercase tracking-widest">
+                  Or Sign Up With
+                </Text>
+                <View className="flex-1 h-[1px] bg-white/5" />
+              </View>
+
+              {/* Social Logins */}
+              <View className="flex-row justify-center space-x-4 gap-4">
+                <TouchableOpacity
+                  onPress={() =>
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                  }
+                  className="bg-white p-4 rounded-2xl shadow-sm flex-1 items-center justify-center"
+                >
+                  <Ionicons name="logo-google" size={24} color="#DB4437" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                  }
+                  className="bg-white p-4 rounded-2xl shadow-sm flex-1 items-center justify-center"
+                >
+                  <Ionicons name="logo-apple" size={24} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+                  }
+                  className="bg-white p-4 rounded-2xl shadow-sm flex-1 items-center justify-center"
+                >
+                  <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Footer */}
+              <View className="flex-row justify-center mt-10">
+                <Text className="text-gray-400 text-sm font-medium">
+                  Already have an account?{" "}
+                </Text>
+                <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
+                  <Text className="text-secondary text-sm font-bold underline">
+                    Log In
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

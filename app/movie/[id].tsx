@@ -10,9 +10,10 @@ import React, { useState } from "react";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import { getMovieDetails } from "@/services/api";
 import useFetch from "@/services/useFetch";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { Share } from "react-native"; // Add this import
-import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Share, Linking } from "react-native";
+import { router, Link } from "expo-router";
+import { useFavorites } from "@/context/FavoritesContext";
 
 interface MovieReference {
   label: string;
@@ -31,7 +32,7 @@ const MovieInfo = ({ label, value }: MovieReference) => {
 };
 
 const Info = () => {
-  const [Fav, setFav] = useState([]);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const { id } = useLocalSearchParams();
   const {
     Data: movie,
@@ -41,18 +42,39 @@ const Info = () => {
 
   const handleShare = async () => {
     try {
-    
-      const shareOptions = {
-        title: `Share ${movie?.title}`,
-        message: `Check out this movie: ${
-          movie?.title
-        }\n\nRating: ${movie?.vote_average?.toFixed(1)}/10`,
-        url: `https://image.tmdb.org/t/p/w500${movie?.poster_path}`
-      };
+      const shareMessage = `🎬 Check out "${movie?.title}" on FilmFinder!\n\n⭐️ Rating: ${movie?.vote_average?.toFixed(1)}/10\n📅 Release: ${movie?.release_date}\n\n${movie?.overview?.slice(0, 100)}...\n\n🔗 View more: https://www.themoviedb.org/movie/${movie?.id}`;
 
-      await Share.share(shareOptions);
+      await Share.share({
+        message: shareMessage,
+        title: movie?.title,
+      });
     } catch (error) {
       console.error("Error sharing movie:", error);
+    }
+  };
+
+  const handleWatchTrailer = async () => {
+    if (!movie?.videos || movie.videos.length === 0) {
+      alert("No trailer found for this movie.");
+      return;
+    }
+
+    // Find official trailer or any YouTube video
+    const trailer =
+      movie.videos.find(
+        (v: any) => v.type === "Trailer" && v.site === "YouTube",
+      ) || movie.videos.find((v: any) => v.site === "YouTube");
+
+    if (trailer) {
+      const url = `https://www.youtube.com/watch?v=${trailer.key}`;
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        alert("Cannot open trailer link.");
+      }
+    } else {
+      alert("No official trailer available on YouTube.");
     }
   };
 
@@ -101,7 +123,7 @@ const Info = () => {
 
           <View className="flex-row items-center gap-2 mt-2">
             <View className="flex-row items-center gap-1">
-              <AntDesign name="star" size={20} color="#FFD700" />
+              <Ionicons name="star" size={20} color="#FFD700" />
               <Text className="text-white">
                 {movie?.vote_average?.toFixed(1) ?? "N/A"}/10
               </Text>
@@ -114,21 +136,42 @@ const Info = () => {
 
         {/* 3 sections Bar  */}
         <View className="flex-row justify-around mt-5 px-5 py-3">
-          <TouchableOpacity className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3">
-            <AntDesign name="videocamera" size={28} color="#FFD700" />
+          <TouchableOpacity
+            onPress={handleWatchTrailer}
+            className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3"
+          >
+            <Ionicons name="videocam" size={28} color="#FFD700" />
             <Text className="text-white text-sm mt-1">Trailer</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3">
-            <AntDesign name="hearto" size={28} color="#FFD700" />
-            <Text className="text-white text-sm mt-1">Favorites</Text>
+          <TouchableOpacity
+            onPress={() =>
+              movie &&
+              toggleFavorite({
+                id: movie.id,
+                title: movie.title,
+                poster_path: movie.poster_path,
+                vote_average: movie.vote_average,
+                release_date: movie.release_date,
+              })
+            }
+            className={`flex-row justify-center items-center gap-5 rounded-lg py-3 px-3 ${isFavorite(movie?.id) ? "bg-secondary/20 border border-secondary" : "bg-gray-700"}`}
+          >
+            <Ionicons
+              name={isFavorite(movie?.id) ? "heart" : "heart-outline"}
+              size={28}
+              color="#FFD700"
+            />
+            <Text className="text-white text-sm mt-1">
+              {isFavorite(movie?.id) ? "Saved" : "Favorite"}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleShare}
             className="flex-row justify-center items-center gap-5 bg-gray-700 rounded-lg py-3 px-3"
           >
-            <AntDesign name="sharealt" size={28} color="#FFD700" />
+            <Ionicons name="share-social" size={28} color="#FFD700" />
             <Text className="text-white text-sm mt-1">Share</Text>
           </TouchableOpacity>
         </View>
@@ -169,34 +212,118 @@ const Info = () => {
           <Text className="text-white font-bold text-lg mb-2">Casts</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {movie?.cast?.slice(0, 10).map((cast: any) => (
-              <View
-                key={cast.id}
-                className="flex-col items-center justify-center mr-5"
-              >
-                <Image
-                  source={{
-                    uri: cast.profile_path
-                      ? `https://image.tmdb.org/t/p/w500${cast.profile_path}`
-                      : "https://via.placeholder.com/100x150.png?text=No+Image",
-                  }}
-                  className="w-[100px] h-[100px] rounded-full"
-                  resizeMode="cover"
-                />
-                <Text className="text-white text-sm mt-1">{cast.name}</Text>
-                <Text className="text-gray-400 text-xs mt-1">
-                  {cast.character}
-                </Text>
-              </View>
+              <Link key={cast.id} href={`/actor/${cast.id}`} asChild>
+                <TouchableOpacity className="flex-col items-center justify-center mr-5">
+                  <Image
+                    source={{
+                      uri: cast.profile_path
+                        ? `https://image.tmdb.org/t/p/w500${cast.profile_path}`
+                        : "https://via.placeholder.com/100x150.png?text=No+Image",
+                    }}
+                    className="w-[100px] h-[100px] rounded-full"
+                    resizeMode="cover"
+                  />
+                  <View className="items-center mt-2">
+                    <Text
+                      className="text-white text-sm font-semibold"
+                      numberOfLines={1}
+                    >
+                      {cast.name}
+                    </Text>
+                    <Text className="text-gray-400 text-xs" numberOfLines={1}>
+                      {cast.character}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </Link>
             ))}
           </ScrollView>
         </View>
+
+        {/* Where to Watch Section */}
+        {movie?.watch_providers && (
+          <View className="mt-5 px-5 mb-8">
+            <Text className="text-white font-bold text-lg mb-4">
+              Where to Watch
+            </Text>
+            {(() => {
+              const regionData =
+                movie.watch_providers.IN ||
+                movie.watch_providers.US ||
+                Object.values(movie.watch_providers)[0];
+
+              if (
+                !regionData ||
+                (!regionData.flatrate && !regionData.rent && !regionData.buy)
+              ) {
+                return (
+                  <Text className="text-gray-500 italic">
+                    No watch information available for your region.
+                  </Text>
+                );
+              }
+
+              const ProviderGroup = ({
+                title,
+                providers,
+              }: {
+                title: string;
+                providers: any[];
+              }) => (
+                <View className="mb-4">
+                  <Text className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">
+                    {title}
+                  </Text>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {providers.map((provider: any) => (
+                      <View
+                        key={provider.provider_id}
+                        className="items-center mr-4"
+                      >
+                        <Image
+                          source={{
+                            uri: `https://image.tmdb.org/t/p/original${provider.logo_path}`,
+                          }}
+                          className="w-12 h-12 rounded-xl border border-white/10"
+                        />
+                        <Text
+                          className="text-white text-[10px] mt-1 font-medium max-w-[50px] text-center"
+                          numberOfLines={1}
+                        >
+                          {provider.provider_name}
+                        </Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+                </View>
+              );
+
+              return (
+                <View className="bg-white/5 p-4 rounded-3xl border border-white/5">
+                  {regionData.flatrate && (
+                    <ProviderGroup
+                      title="Streaming"
+                      providers={regionData.flatrate}
+                    />
+                  )}
+                  {regionData.rent && (
+                    <ProviderGroup title="Rent" providers={regionData.rent} />
+                  )}
+                  {regionData.buy && (
+                    <ProviderGroup title="Buy" providers={regionData.buy} />
+                  )}
+                </View>
+              );
+            })()}
+          </View>
+        )}
 
         <View>
           <TouchableOpacity
             onPress={() => router.back()}
             className="flex-row items-center justify-center bg-gray-700 py-3 gap-2"
           >
-            <AntDesign name="arrowleft" size={24} color="#FFD700" />
+            <Ionicons name="arrow-back" size={24} color="#FFD700" />
             <Text className="text-white text-sm">Back</Text>
           </TouchableOpacity>
         </View>

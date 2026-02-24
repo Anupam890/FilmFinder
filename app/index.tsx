@@ -17,12 +17,23 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { useAuth } from "@/context/AuthContext";
+import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
+
 export default function Index() {
   const fadeIn = useSharedValue(0);
+  const { isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
     fadeIn.value = withTiming(1, { duration: 1000 });
   }, []);
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      router.replace("/(tabs)/home");
+    }
+  }, [isAuthenticated, loading]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: fadeIn.value,
@@ -65,7 +76,12 @@ export default function Index() {
               </Text>
 
               <Link href={"/(auth)/register"} asChild>
-                <TouchableOpacity className="bg-secondary py-3 rounded-xl">
+                <TouchableOpacity
+                  onPress={() =>
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+                  }
+                  className="bg-secondary py-3 rounded-xl"
+                >
                   <Text className="text-white text-center text-lg font-semibold">
                     Get Started
                   </Text>

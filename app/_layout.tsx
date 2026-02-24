@@ -1,15 +1,14 @@
 import { Stack } from "expo-router";
 import "./global.css";
 import { AuthProvider } from "../context/AuthContext";
+import { FavoritesProvider } from "../context/FavoritesContext";
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
+      <FavoritesProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </FavoritesProvider>
     </AuthProvider>
   );
 }

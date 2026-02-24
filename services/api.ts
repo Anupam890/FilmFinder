@@ -15,14 +15,54 @@ export const Server_api = {
 };
 
 /**
+ * Firebase Function Proxy URL
+ * Replace this with your actual deployed function URL.
+ * Set to "" to fall back to direct TMDB (requires VPN in India).
+ */
+const PROXY_URL = "" as string;
+
+/**
  * Generic fetcher for TMDB API
- * @param endpoint The API endpoint (e.g., /movie/popular)
- * @param params Optional query parameters
+ * Supports both direct fetch and Firebase Function Proxy
  */
 const fetchFromTMDB = async (
   endpoint: string,
   params: Record<string, string | number> = {},
 ) => {
+  // If Proxy URL is configured, use it to bypass geo-restrictions
+  if (PROXY_URL && !PROXY_URL.includes("YOUR_PROJECT_ID")) {
+    try {
+      const res = await fetch(PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint,
+          params: {
+            include_adult: "false",
+            language: "en-US",
+            page: "1",
+            ...params,
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          `Proxy Error (${res.status}): ${errorData.error || res.statusText}`,
+        );
+      }
+
+      const data = await res.json();
+      return data.results || data;
+    } catch (error: any) {
+      console.error(`Proxy Fetch Error at ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  // Fallback to direct TMDB call (Original Method)
+  // This will work globally but might require VPN in India
   const queryParams = new URLSearchParams({
     include_adult: "false",
     language: "en-US",
@@ -41,20 +81,14 @@ const fetchFromTMDB = async (
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({}));
       throw new Error(
-        `TMDB Error (${res.status}): ${errorData.status_message || res.statusText || "Unknown error"}`,
+        `TMDB Error (${res.status}): ${errorData.status_message || res.statusText}`,
       );
     }
 
     const data = await res.json();
     return data.results || data;
   } catch (error: any) {
-    if (error.message === "Network request failed") {
-      console.error(
-        "Network request failed. Please check your internet connection or if the API endpoint is reachable.",
-      );
-    } else {
-      console.error(`Fetch API Error at ${endpoint}:`, error);
-    }
+    console.error(`Direct Fetch API Error at ${endpoint}:`, error);
     throw error;
   }
 };
@@ -62,14 +96,20 @@ const fetchFromTMDB = async (
 export const getMovies = async ({
   query,
   page = 1,
+  genreId,
 }: {
   query: string;
   page?: number;
+  genreId?: number;
 }) => {
   if (query) {
     return fetchFromTMDB("/search/movie", { query, page });
   }
-  return fetchFromTMDB("/discover/movie", { sort_by: "popularity.desc", page });
+  return fetchFromTMDB("/discover/movie", {
+    sort_by: "popularity.desc",
+    page,
+    with_genres: genreId || "",
+  });
 };
 
 export const getTrendingMovies = async () => {
@@ -96,6 +136,14 @@ export const getMovieDetails = async (movieId: string): Promise<any> => {
     // Fetch credits (cast) separately
     const castData = await fetchFromTMDB(`/movie/${movieId}/credits`);
 
+    // Fetch watch providers
+    const watchProvidersData = await fetchFromTMDB(
+      `/movie/${movieId}/watch/providers`,
+    );
+
+    // Fetch videos
+    const videosData = await fetchFromTMDB(`/movie/${movieId}/videos`);
+
     const cast = (castData.cast || []).slice(0, 10).map((actor: any) => ({
       id: actor.id,
       name: actor.name,
@@ -105,9 +153,41 @@ export const getMovieDetails = async (movieId: string): Promise<any> => {
         : null,
     }));
 
-    return { ...movieData, cast };
+    return {
+      ...movieData,
+      cast,
+      watch_providers: watchProvidersData.results || {},
+      videos: videosData.results || [],
+    };
   } catch (err) {
     console.error(`Error fetching movie details for ID ${movieId}:`, err);
     throw err;
+  }
+};
+
+export const getActorDetails = async (actorId: string): Promise<any> => {
+  return fetchFromTMDB(`/person/${actorId}`);
+};
+
+export const getActorMovies = async (actorId: string): Promise<any> => {
+  const data = await fetchFromTMDB(`/person/${actorId}/movie_credits`);
+  return data.cast
+    .sort((a: any, b: any) => b.popularity - a.popularity)
+    .slice(0, 20);
+};
+
+export const getGenres = async (): Promise<any> => {
+  const data = await fetchFromTMDB("/genre/movie/list");
+  return data.genres;
+};
+
+export const getTrendingPeople = async (): Promise<any> => {
+  try {
+    const data = await fetchFromTMDB("/trending/person/day");
+    const results = Array.isArray(data) ? data : data?.results || [];
+    return Array.isArray(results) ? results.slice(0, 10) : [];
+  } catch (err) {
+    console.error("Error in getTrendingPeople:", err);
+    return [];
   }
 };
