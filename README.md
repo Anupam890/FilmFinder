@@ -10,7 +10,10 @@ A modern **movie discovery mobile application** built with **Expo (React Native)
 
 | Home | Search | Profile |
 |------|--------|---------|
-| ![Home](./screenshots/home.png) | ![Search](./screenshots/search.png) | ![Profile](./screenshots/profile.png) |
+| ![Home](![WhatsApp Image 2026-02-25 at 1 21 57 AM](https://github.com/user-attachments/assets/7c32cc6c-52d7-4b51-92e2-dda43e169540)
+) | ![Search]
+![WhatsApp Image 2026-02-25 at 1 21 58 AM (1)](https://github.com/user-attachments/assets/fdd3a5d4-d764-4efd-b3de-0248cf9c0b65)  | ![Profile] |
+![WhatsApp Image 2026-02-25 at 1 21 58 AM](https://github.com/user-attachments/assets/efb56e21-b64c-41d1-bcd4-c84e08b06e3d)
 
 > Dark-mode focused UI with smooth navigation and content-first design.
 
