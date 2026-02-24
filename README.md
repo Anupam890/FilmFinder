@@ -1,50 +1,72 @@
-# Welcome to your Expo app 👋
+# 🎬 FilmFinder
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern **movie discovery mobile application** built with **Expo (React Native)** and **Firebase**, allowing users to explore trending movies, search by categories, manage watchlists, and personalize their movie experience.
 
-## Get started
+> Built with a production-ready mindset, including a solution for geo-restricted APIs.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 📱 Screenshots
 
-2. Start the app
+| Home | Search | Profile |
+|------|--------|---------|
+| ![Home](./screenshots/home.png) | ![Search](./screenshots/search.png) | ![Profile](./screenshots/profile.png) |
 
-   ```bash
-    npx expo start
-   ```
+> Dark-mode focused UI with smooth navigation and content-first design.
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## ✨ Features
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 🎥 Movie Discovery
+- Trending movies
+- Popular movies
+- Category-based browsing (Action, Adventure, Animation, Comedy, etc.)
+- Trending people (actors, directors)
 
-## Get a fresh project
+### 🔍 Search & Filters
+- Search movies by title
+- Filter by genres
+- Fast and responsive search experience
 
-When you're ready, run:
+### ❤️ Watchlist
+- Save movies to personal watchlist
+- Remove movies anytime
+- Synced with Firebase for logged-in users
 
-```bash
-npm run reset-project
-```
+### 👤 User Profile
+- Firebase Authentication
+- User profile with saved movies and reviews
+- Theme, language, and notification preferences
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 🌙 UI & UX
+- Dark mode first design
+- Smooth animations
+- Bottom tab navigation
+- Clean card-based layout
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🧠 Tech Stack
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Frontend
+- Expo (React Native)
+- React Navigation
+- Firebase Authentication
+- Firebase Firestore
 
-## Join the community
+### Backend (Serverless)
+- Firebase Cloud Functions
 
-Join our community of developers creating universal apps.
+### API
+- The Movie Database (TMDB)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🌍 TMDB Geo-Restriction Fix (No VPN Required)
+
+### ❌ Problem
+The TMDB API is **geo-restricted in India**, causing API calls to fail unless a VPN is enabled.
+
+### ✅ Solution (Production-Ready)
+Instead of calling TMDB directly from the client, the app uses **Firebase Cloud Functions as a proxy**.
